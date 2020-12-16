@@ -37,14 +37,7 @@ func main() {
 	}
 
 	route := gin.Default()
-	route.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "HEAD", "POST", "PUT", "DELETE"},
-		AllowHeaders:     []string{"Content-Type", "Accept", "Origin"},
-		ExposeHeaders:    []string{"Content-Type", "Accept", "Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	route.Use(cors.Default())
 	route.POST("/sfu", func(c *gin.Context) {
 		var offer Offer
 		_ = c.BindJSON(&offer)
