@@ -15,7 +15,7 @@ node_modules/
 ### Files ###
 #############
 *.ivf
-*.ogg
+#*.ogg
 tags
 cover.out
 *.sw[poe]

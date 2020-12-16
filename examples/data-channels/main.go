@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/pion/webrtc/v3/examples/data-channels/publish"
 	"time"
 
 	"github.com/pion/webrtc/v3"
@@ -45,10 +47,35 @@ func main() {
 		panic(err)
 	}
 
+	iceConnectedCtx, iceConnectedCtxCancel := context.WithCancel(context.Background())
+	audioStopCtx, audioStop := context.WithCancel(context.Background())
+	go func() {
+		fmt.Println("再生開始")
+		var audio *publish.OggAudio
+		audio, err = publish.NewOggAudio("./output.ogg")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		<-iceConnectedCtx.Done()
+		err = publish.Publisher(audioStopCtx, audioTrack, audio)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("再生が正常に終わりました")
+	}()
+
 	// Set the handler for ICE connection state
 	// This will notify you when the peer has connected/disconnected
 	peerConnection.OnICEConnectionStateChange(func(connectionState webrtc.ICEConnectionState) {
 		fmt.Printf("ICE Connection State has changed: %s\n", connectionState.String())
+		if connectionState == webrtc.ICEConnectionStateConnected {
+			iceConnectedCtxCancel()
+		} else if connectionState == webrtc.ICEConnectionStateDisconnected {
+			audioStop()
+		}
 	})
 
 	// Register data channel creation handling

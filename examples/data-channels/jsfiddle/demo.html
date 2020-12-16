@@ -7,6 +7,9 @@ Golang base64 Session Description<br />
 
 <br />
 
+Audio<br />
+<div id="remoteAudios"></div> <br />
+
 Message<br />
 <textarea id="message">This is my DataChannel message!</textarea> <br/>
 <button onclick="window.sendMessage()">Send Message</button> <br />
@@ -43,6 +46,16 @@ Logs<br />
 
     pc.onnegotiationneeded = e =>
         pc.createOffer().then(d => pc.setLocalDescription(d)).catch(log)
+
+    pc.ontrack = (event) => {
+        console.log(event.streams[0])
+        var el = document.createElement(event.track.kind)
+        el.srcObject = event.streams[0]
+        el.autoplay = true
+        el.controls = true
+
+        document.getElementById('remoteAudios').appendChild(el)
+    }
 
     window.sendMessage = () => {
         let message = document.getElementById('message').value
