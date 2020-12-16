@@ -10,6 +10,12 @@ import (
 
 func main() {
 	// Everything below is the Pion WebRTC API! Thanks for using it ❤️.
+	mediaEngine := webrtc.MediaEngine{}
+	_ = mediaEngine.RegisterCodec(webrtc.RTPCodecParameters{
+		RTPCodecCapability: webrtc.RTPCodecCapability{MimeType: "audio/opus", ClockRate: 48000, Channels: 2, SDPFmtpLine: "minptime=10;useinbandfec=1"},
+		PayloadType:        111,
+	}, webrtc.RTPCodecTypeAudio)
+	api := webrtc.NewAPI(webrtc.WithMediaEngine(mediaEngine))
 
 	// Prepare the configuration
 	config := webrtc.Configuration{
@@ -21,7 +27,20 @@ func main() {
 	}
 
 	// Create a new RTCPeerConnection
-	peerConnection, err := webrtc.NewPeerConnection(config)
+	peerConnection, err := api.NewPeerConnection(config)
+	if err != nil {
+		panic(err)
+	}
+
+	audioTrack, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: "audio/opus"}, "audio", "pion1")
+	if err != nil {
+		panic(err)
+	}
+	_, err = peerConnection.AddTrack(audioTrack)
+	if err != nil {
+		panic(err)
+	}
+	_, err = peerConnection.AddTransceiverFromTrack(audioTrack, webrtc.RTPTransceiverInit{Direction: webrtc.RTPTransceiverDirectionSendonly})
 	if err != nil {
 		panic(err)
 	}
