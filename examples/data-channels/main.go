@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/pion/webrtc/v3/examples/data-channels/publish"
 	"net/http"
@@ -36,15 +37,14 @@ func main() {
 	}
 
 	route := gin.Default()
-	route.Use(func(ctx *gin.Context) {
-		if origin := ctx.Request.Header.Get("Origin"); origin != "" {
-			ctx.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-			if ctx.Request.Method == "OPTIONS" && ctx.Request.Header.Get("Access-Control-Request-Method") != "" {
-				preflightHandler(ctx.Writer, ctx.Request)
-				return
-			}
-		}
-	})
+	route.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "HEAD", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type", "Accept", "Origin"},
+		ExposeHeaders:    []string{"Content-Type", "Accept", "Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 	route.POST("/sfu", func(c *gin.Context) {
 		var offer Offer
 		_ = c.BindJSON(&offer)

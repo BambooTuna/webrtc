@@ -50,7 +50,7 @@ Logs<br />
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    Sdp: pc.localDescription.sdp
+                    sdp: pc.localDescription.sdp
                 })
             })
                 .then(res => res.json())
@@ -83,16 +83,16 @@ Logs<br />
     }
 
     window.startSession = () => {
-        let sd = document.getElementById('remoteSessionDescription').value
-        if (sd === '') {
-            return alert('Session Description must not be empty')
-        }
-
-        try {
-            pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(sd))))
-        } catch (e) {
-            alert(e)
-        }
+        // let sd = document.getElementById('remoteSessionDescription').value
+        // if (sd === '') {
+        //     return alert('Session Description must not be empty')
+        // }
+        //
+        // try {
+        //     pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(atob(sd))))
+        // } catch (e) {
+        //     alert(e)
+        // }
     }
 
 
