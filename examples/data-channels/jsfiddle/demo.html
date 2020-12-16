@@ -32,6 +32,8 @@ Logs<br />
         document.getElementById('logs').innerHTML += msg + '<br>'
     }
 
+    pc.addTransceiver('audio', {'direction': 'recvonly'})
+
     let sendChannel = pc.createDataChannel('foo')
     sendChannel.onclose = () => console.log('sendChannel has closed')
     sendChannel.onopen = () => console.log('sendChannel has opened')
@@ -41,6 +43,20 @@ Logs<br />
     pc.onicecandidate = event => {
         if (event.candidate === null) {
             document.getElementById('localSessionDescription').value = btoa(JSON.stringify(pc.localDescription))
+            fetch('https://develop.tavern.co.jp:8081/sfu', {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    Sdp: pc.localDescription.sdp
+                })
+            })
+                .then(res => res.json())
+                .then(res => {
+                    pc.setRemoteDescription(new RTCSessionDescription({type:'answer', sdp: res.sdp}))
+                })
         }
     }
 
